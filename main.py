@@ -2,7 +2,7 @@ import os
 import pickle
 import pandas as pd
 import torch
-from library.utils import cosine_adj
+from utils import cosine_adj
 
 BASE_PATH = ''
 DATASET = 'sample_data'
