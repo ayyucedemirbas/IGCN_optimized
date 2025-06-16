@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from torch.optim import Adam
 from torch_geometric.data import Data
 from library.combine_module2 import GCN
+import main
 
 BASE_PATH = ''
 DATA_DIR = os.path.join(BASE_PATH, 'dataset')
