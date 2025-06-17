@@ -20,7 +20,7 @@ EDGE_DIR = os.path.join(BASE_PATH, 'data', 'sample_data')
 SAVE_FIG = 'attention_weights.png'
 HID_SIZE = 64
 LR = 0.005
-EPOCHS = 400
+EPOCHS = 600
 FOLDS = 5
 
 
