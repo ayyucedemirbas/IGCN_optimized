@@ -5,6 +5,7 @@ import pandas as pd
 import torch
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.metrics import accuracy_score, f1_score, matthews_corrcoef
+import time
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -19,7 +20,7 @@ EDGE_DIR = os.path.join(BASE_PATH, 'data', 'sample_data')
 SAVE_FIG = 'attention_weights.png'
 HID_SIZE = 64
 LR = 0.005
-EPOCHS = 200
+EPOCHS = 400
 FOLDS = 5
 
 
@@ -39,6 +40,7 @@ def train_and_evaluate(features, edges, labels):
     skf = StratifiedKFold(n_splits=FOLDS, shuffle=True, random_state=42)
     metrics = {'acc': [], 'wf1': [], 'mf1': [], 'mcc': []}
     all_weights = []
+    run_times = []
 
     device = torch.device('cpu')
     feats = [f.to(device) for f in features]
@@ -47,6 +49,7 @@ def train_and_evaluate(features, edges, labels):
 
     for fold, (train_idx, test_idx) in enumerate(skf.split(feats[0], labels)):
         DATA = []
+        start_time = time.time()
         for f, e in zip(feats, edgs):
             data = Data(x=f, edge_index=e, edge_attr=torch.ones(e.size(1)), y=y)
             train_mask = torch.zeros_like(y, dtype=torch.bool)
@@ -84,16 +87,20 @@ def train_and_evaluate(features, edges, labels):
 
         if fold == FOLDS - 1:
             all_weights = [c.cpu().numpy() for c in coefs]
+        end_time = time.time()
+        run_times.append(end_time - start_time)
 
     for k, v in metrics.items():
         print(f"{k}: {np.mean(v):.3f} ± {np.std(v):.3f}")
 
-    return all_weights, labels, preds, test_idx
+    return all_weights, labels, preds, test_idx, run_times
 
 
 if __name__ == '__main__':
     feats, edgs, labels = load_data()
-    weights, labels, preds, test_idx = train_and_evaluate(feats, edgs, labels)
+    weights, labels, preds, test_idx, run_times = train_and_evaluate(feats, edgs, labels)
+
+    print(f"time: {np.mean(run_times):.3f}")
 
     coef1, coef2, coef3 = weights
     y_test = labels[test_idx]
